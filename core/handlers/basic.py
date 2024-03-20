@@ -4,6 +4,14 @@ from aiogram import Bot, F
 from aiogram.types import Message, KeyboardButton, ReplyKeyboardMarkup
 from aiogram.filters import CommandStart
 from core.keyboards.reply import reply_keyboard, loc_tel_poll_keyboard, get_reply_keyboard
+from core.keyboards.inline import select_macbook, get_inline_keyboard
+
+
+async def get_inline(message: Message, bot: Bot):
+    await message.answer(
+        f'Привет, {message.from_user.first_name}. Показываю инлайн кнопки!',
+        reply_markup=get_inline_keyboard()
+        )
 
 
 async def get_start(message: Message):
@@ -12,6 +20,7 @@ async def get_start(message: Message):
         reply_markup=get_reply_keyboard()
         )
     
+
 async def get_location(message: Message, bot: Bot):
     await message.answer(
         f'Ты отправил локацию!\r\a'

@@ -90,7 +90,7 @@ def get_reply_keyboard():
         )
     keyboard_builder.button(
         text='Создать викторину',
-        request_poll=KeyboardButtonPollType
+        request_poll=KeyboardButtonPollType()
     )
     keyboard_builder.adjust(3, 2, 1)
     
