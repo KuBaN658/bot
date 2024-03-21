@@ -20,6 +20,7 @@ from core.handlers.basic import (
     )
 from core.handlers.callback import select_macbook
 from core.utils.callbackdata import MacInfo
+from core.handlers.pay import order, pre_checkout_query, successful_payment
 
 
 async def start_bot(bot: Bot):
@@ -40,6 +41,9 @@ async def main() -> None:
 
     dp.startup.register(start_bot)
     dp.shutdown.register(stop_bot)
+    dp.message.register(order, Command(commands='pay'))
+    dp.pre_checkout_query.register(pre_checkout_query)
+    dp.message.register(successful_payment,F.successful_payment)
     dp.message.register(get_inline, Command(commands='inline'))
     dp.callback_query.register(select_macbook, MacInfo.filter(F.chip == 'M1'))
     # dp.callback_query.register(select_macbook, F.data.startswith('apple_'))
