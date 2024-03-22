@@ -25,3 +25,4 @@ async def select_macbook(call: CallbackQuery, bot: Bot, callback_data: MacInfo):
              f' {size} дюймов, с чипом {chip}, {year} года.'
     await call.message.answer(answer)
     await call.answer()
+    

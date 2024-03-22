@@ -6,3 +6,4 @@ class MacInfo(CallbackData, prefix='mac'):
     size: int
     chip: str
     year: int
+    
