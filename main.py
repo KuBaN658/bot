@@ -26,6 +26,8 @@ from core.handlers.pay import (
     successful_payment,
     shipping_check
     )
+from core.middlewares.countermiddleware import CounterMiddleware
+from core.middlewares.officehours import OfficeHoursMiddleware
 
 
 async def start_bot(bot: Bot):
@@ -43,7 +45,8 @@ async def main() -> None:
         format="%(asctime)s - [%(levelname)s] - %(name)s"
                "(%(filename)s).%(funcName)s(%(lineno)d) - %(message)s"
     )
-
+    dp.message.middleware.register(CounterMiddleware())
+    dp.message.middleware.register(OfficeHoursMiddleware())
     dp.startup.register(start_bot)
     dp.shutdown.register(stop_bot)
     dp.message.register(order, Command(commands='pay'))
