@@ -5,6 +5,7 @@ from aiogram.types import Message, KeyboardButton, ReplyKeyboardMarkup
 from aiogram.filters import CommandStart
 from core.keyboards.reply import reply_keyboard, loc_tel_poll_keyboard, get_reply_keyboard
 from core.keyboards.inline import select_macbook, get_inline_keyboard
+from core.utils.dbconnect import Request
 
 
 async def get_inline(message: Message, bot: Bot):
@@ -14,7 +15,8 @@ async def get_inline(message: Message, bot: Bot):
         )
 
 
-async def get_start(message: Message, bot: Bot, counter: str):
+async def get_start(message: Message, bot: Bot, counter: str, request: Request):
+    await request.add_data(message.from_user.id, message.from_user.first_name)
     await message.answer(f'Сообщение #{counter}')
     await message.answer(
         f'Привет, <b>{message.from_user.first_name}</> рад тебя видеть!',

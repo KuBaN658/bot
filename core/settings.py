@@ -6,6 +6,7 @@ from environs import Env
 class Bots:
     bot_token: str
     admin_id: id
+    password: str
 
 
 
@@ -22,7 +23,8 @@ def get_settings(path: str):
     return Settings(
         bots=Bots(
             bot_token=env.str('BOT_TOKEN'),
-            admin_id=env.int('ADMIN_ID')
+            admin_id=env.int('ADMIN_ID'),
+            password=env.str('pass')
         )
     )
 

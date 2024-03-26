@@ -5,6 +5,7 @@ from aiogram import F
 from aiogram import Bot
 from aiogram.filters import CommandStart, Command
 from aiogram.types import ContentType
+from core.settings import settings
 
 from bot import dp, bot
 from core.filters.iscontact import IsTrueContact
@@ -28,6 +29,8 @@ from core.handlers.pay import (
     )
 from core.middlewares.countermiddleware import CounterMiddleware
 from core.middlewares.officehours import OfficeHoursMiddleware
+from core.middlewares.dbmiddleware import DbSession
+import asyncpg
 
 
 async def start_bot(bot: Bot):
@@ -45,6 +48,15 @@ async def main() -> None:
         format="%(asctime)s - [%(levelname)s] - %(name)s"
                "(%(filename)s).%(funcName)s(%(lineno)d) - %(message)s"
     )
+    pool_connect = await asyncpg.create_pool(
+        user='postgres', 
+        password=settings.bots.password,
+        database='users',
+        host='127.0.0.1',
+        port=5432,
+        command_timeout=60
+        )
+    dp.update.middleware.register(DbSession(pool_connect))
     dp.message.middleware.register(CounterMiddleware())
     dp.message.middleware.register(OfficeHoursMiddleware())
     dp.startup.register(start_bot)

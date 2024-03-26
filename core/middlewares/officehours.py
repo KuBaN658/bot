@@ -9,7 +9,7 @@ def offece_hours() -> bool:
     return datetime.now().weekday() in (
         0, 1, 2, 3, 4
         ) and datetime.now().hour in [
-            i for i in range(8, 20)
+            i for i in range(8, 22)
             ]
 
 
@@ -24,5 +24,5 @@ class OfficeHoursMiddleware(BaseMiddleware):
         if offece_hours():
             return await handler(event, data)
         
-        await event.answer('Время работы бота: \r\nПн-пт с 8 до 20. Приходите в рабочие часы.')
+        await event.answer('Время работы бота: \r\nПн-пт с 8 до 23. Приходите в рабочие часы.')
         
