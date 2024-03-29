@@ -1,6 +1,6 @@
 import asyncio
 import logging
-import sys
+import asyncpg
 from aiogram import F
 from aiogram import Bot
 from aiogram.filters import CommandStart, Command
@@ -30,7 +30,8 @@ from core.handlers.pay import (
 from core.middlewares.countermiddleware import CounterMiddleware
 from core.middlewares.officehours import OfficeHoursMiddleware
 from core.middlewares.dbmiddleware import DbSession
-import asyncpg
+from core.utils.statesform import StepsForm
+from core.handlers import form
 
 
 async def start_bot(bot: Bot):
@@ -61,6 +62,10 @@ async def main() -> None:
     dp.message.middleware.register(OfficeHoursMiddleware())
     dp.startup.register(start_bot)
     dp.shutdown.register(stop_bot)
+    dp.message.register(form.get_form, Command(commands='form'))
+    dp.message.register(form.get_name, StepsForm.get_name)
+    dp.message.register(form.get_last_name, StepsForm.get_last_name)
+    dp.message.register(form.get_age, StepsForm.get_age)
     dp.message.register(order, Command(commands='pay'))
     dp.pre_checkout_query.register(pre_checkout_query)
     dp.message.register(successful_payment,F.successful_payment)
