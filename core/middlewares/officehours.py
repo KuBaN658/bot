@@ -7,7 +7,7 @@ from aiogram.types import Message
 
 def offece_hours() -> bool:
     return datetime.now().weekday() in (
-        0, 1, 2, 3, 4
+        0, 1, 2, 3, 4, 5, 6
         ) and datetime.now().hour in [
             i for i in range(8, 22)
             ]

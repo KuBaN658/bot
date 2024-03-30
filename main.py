@@ -1,11 +1,14 @@
 import asyncio
 import logging
 import asyncpg
+from datetime import datetime, timedelta
 from aiogram import F
 from aiogram import Bot
 from aiogram.filters import CommandStart, Command
 from aiogram.types import ContentType
 from core.settings import settings
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from core.handlers import apsched
 
 from bot import dp, bot
 from core.filters.iscontact import IsTrueContact
@@ -49,6 +52,7 @@ async def main() -> None:
         format="%(asctime)s - [%(levelname)s] - %(name)s"
                "(%(filename)s).%(funcName)s(%(lineno)d) - %(message)s"
     )
+
     pool_connect = await asyncpg.create_pool(
         user='postgres', 
         password=settings.bots.password,
@@ -57,6 +61,30 @@ async def main() -> None:
         port=5432,
         command_timeout=60
         )
+    
+    scheduler = AsyncIOScheduler(timezone='Europe/Moscow')
+    scheduler.add_job(
+    apsched.send_message_time, 
+    trigger='date', 
+    run_date=datetime.now() + timedelta(seconds=10),
+    kwargs={'bot': bot}
+    )
+    scheduler.add_job(
+        apsched.send_message_cron, 
+        trigger='cron',
+        hour=datetime.now().hour, 
+        minute=datetime.now().minute + 1,
+        start_date=datetime.now(), 
+        kwargs={'bot': bot}
+        )
+    scheduler.add_job(
+        apsched.send_message_interval,
+        trigger='interval',
+        seconds=60,
+        kwargs={'bot': bot}
+        )
+    scheduler.start()
+
     dp.update.middleware.register(DbSession(pool_connect))
     dp.message.middleware.register(CounterMiddleware())
     dp.message.middleware.register(OfficeHoursMiddleware())

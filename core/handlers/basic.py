@@ -17,7 +17,12 @@ async def get_inline(message: Message, bot: Bot):
 
 async def get_start(message: Message, bot: Bot, counter: str, request: Request):
     await request.add_data(message.from_user.id, message.from_user.first_name)
-    await message.answer(f'Сообщение #{counter}')
+    await message.answer(
+        f'Сообщение #{counter}\r\n'
+        f'id пользователя - {message.from_user.id}\r\n'
+        f'chat id - {message.chat.id}'
+        )
+    
     await message.answer(
         f'Привет, <b>{message.from_user.first_name}</> рад тебя видеть!',
         reply_markup=get_reply_keyboard()
