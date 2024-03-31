@@ -1,5 +1,5 @@
 import json
-from bot import dp
+
 from aiogram import Bot, F
 from aiogram.types import Message, KeyboardButton, ReplyKeyboardMarkup
 from aiogram.filters import CommandStart

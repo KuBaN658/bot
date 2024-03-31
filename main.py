@@ -5,12 +5,14 @@ from datetime import datetime, timedelta
 from aiogram import F
 from aiogram import Bot
 from aiogram.filters import CommandStart, Command
-from aiogram.types import ContentType
+
 from core.settings import settings
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from core.handlers import apsched
+from aiogram import Bot, Dispatcher
+from aiogram.enums import ParseMode
 
-from bot import dp, bot
+from core.settings import settings
 from core.filters.iscontact import IsTrueContact
 from core.handlers.contact import get_true_contact, get_false_contact
 from core.utils.commands import set_commands
@@ -35,6 +37,7 @@ from core.middlewares.officehours import OfficeHoursMiddleware
 from core.middlewares.dbmiddleware import DbSession
 from core.utils.statesform import StepsForm
 from core.handlers import form
+from core.middlewares.apscheduler_middleware import SchedulerMiddleware
 
 
 async def start_bot(bot: Bot):
@@ -47,6 +50,8 @@ async def stop_bot(bot: Bot):
 
 
 async def main() -> None:
+    bot = Bot(token=settings.bots.bot_token, parse_mode=ParseMode.HTML)
+    
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s - [%(levelname)s] - %(name)s"
@@ -84,10 +89,11 @@ async def main() -> None:
         kwargs={'bot': bot}
         )
     scheduler.start()
-
+    dp = Dispatcher(apscheduler=scheduler)
     dp.update.middleware.register(DbSession(pool_connect))
     dp.message.middleware.register(CounterMiddleware())
     dp.message.middleware.register(OfficeHoursMiddleware())
+    dp.update.middleware.register(SchedulerMiddleware(scheduler))
     dp.startup.register(start_bot)
     dp.shutdown.register(stop_bot)
     dp.message.register(form.get_form, Command(commands='form'))
