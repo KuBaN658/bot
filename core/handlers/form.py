@@ -41,5 +41,5 @@ async def get_age(message: Message, bot: Bot, state: FSMContext, apscheduler: As
         send_message_middleware,
         trigger='date',
         run_date=datetime.now() + timedelta(seconds=10),
-        kwargs={'bot': bot, 'chat_id': message.from_user.id}
+        kwargs={'chat_id': message.from_user.id}
         )

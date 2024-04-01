@@ -38,6 +38,9 @@ from core.middlewares.dbmiddleware import DbSession
 from core.utils.statesform import StepsForm
 from core.handlers import form
 from core.middlewares.apscheduler_middleware import SchedulerMiddleware
+from aiogram.fsm.storage.redis import RedisStorage
+from apscheduler.jobstores.redis import RedisJobStore
+from apscheduler_di import ContextSchedulerDecorator
 
 
 async def start_bot(bot: Bot):
@@ -67,12 +70,27 @@ async def main() -> None:
         command_timeout=60
         )
     
-    scheduler = AsyncIOScheduler(timezone='Europe/Moscow')
+    storage = RedisStorage.from_url('redis://localhost:6379/0')
+
+    jobstores = {
+        'default': RedisJobStore(
+            jobs_key='dispatched_trips_jobs',
+            run_times_key='dispatched_trips_running',
+            host='localhost',
+            db=2,
+            port=6379
+            )
+    }
+    
+    scheduler = ContextSchedulerDecorator(AsyncIOScheduler(
+        timezone='Europe/Moscow', 
+        jobstores=jobstores
+        ))
+    scheduler.ctx.add_instance(bot, declared_class=Bot)
     scheduler.add_job(
     apsched.send_message_time, 
     trigger='date', 
     run_date=datetime.now() + timedelta(seconds=10),
-    kwargs={'bot': bot}
     )
     scheduler.add_job(
         apsched.send_message_cron, 
@@ -80,16 +98,20 @@ async def main() -> None:
         hour=datetime.now().hour, 
         minute=datetime.now().minute + 1,
         start_date=datetime.now(), 
-        kwargs={'bot': bot}
         )
     scheduler.add_job(
         apsched.send_message_interval,
         trigger='interval',
         seconds=60,
-        kwargs={'bot': bot}
         )
     scheduler.start()
-    dp = Dispatcher(apscheduler=scheduler)
+
+    dp = Dispatcher(
+
+        apscheduler=scheduler,
+        storage=storage
+    )
+    
     dp.update.middleware.register(DbSession(pool_connect))
     dp.message.middleware.register(CounterMiddleware())
     dp.message.middleware.register(OfficeHoursMiddleware())
