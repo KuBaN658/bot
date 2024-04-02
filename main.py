@@ -41,6 +41,7 @@ from core.middlewares.apscheduler_middleware import SchedulerMiddleware
 from aiogram.fsm.storage.redis import RedisStorage
 from apscheduler.jobstores.redis import RedisJobStore
 from apscheduler_di import ContextSchedulerDecorator
+from core.handlers import send_media
 
 
 async def start_bot(bot: Bot):
@@ -118,6 +119,16 @@ async def main() -> None:
     dp.update.middleware.register(SchedulerMiddleware(scheduler))
     dp.startup.register(start_bot)
     dp.shutdown.register(stop_bot)
+
+    dp.message.register(send_media.get_audio, Command(commands='audio'))
+    dp.message.register(send_media.get_document, Command(commands='document'))
+    dp.message.register(send_media.get_media_group, Command(commands='mediagroup'))
+    dp.message.register(send_media.get_photo, Command(commands='photo'))
+    dp.message.register(send_media.get_sticker, Command(commands='sticker'))
+    dp.message.register(send_media.get_video, Command(commands='video'))
+    dp.message.register(send_media.get_video_note, Command(commands='video_note'))
+    dp.message.register(send_media.get_voice, Command(commands='voice'))
+
     dp.message.register(form.get_form, Command(commands='form'))
     dp.message.register(form.get_name, StepsForm.get_name)
     dp.message.register(form.get_last_name, StepsForm.get_last_name)
